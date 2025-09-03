@@ -24,7 +24,7 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      sepolia: vars.get("ETHERSCAN_API_KEY", ""),
+      sepolia: vars.get("ETHERSCAN_API_KEY"),
     },
   },
   gasReporter: {
@@ -49,11 +49,7 @@ const config: HardhatUserConfig = {
       url: "http://localhost:8545",
     },
     sepolia: {
-      accounts: {
-        mnemonic: MNEMONIC,
-        path: "m/44'/60'/0'/0/",
-        count: 10,
-      },
+      accounts: [vars.get("PRIVATE_KEY")], // Change this line
       chainId: 11155111,
       url: `https://sepolia.infura.io/v3/${INFURA_API_KEY}`,
     },
@@ -63,6 +59,9 @@ const config: HardhatUserConfig = {
     cache: "./cache",
     sources: "./contracts",
     tests: "./test",
+  },
+  sourcify: {
+    enabled: true,
   },
   solidity: {
     version: "0.8.24",

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Private Crowdfund</title>
+    <script>
+      // Fix for "global is not defined" error
+      if (typeof global === "undefined") {
+        window.global = window;
+      }
+    </script>
+    <!-- Load FHEVM SDK from CDN -->
+    <script src="https://cdn.zama.ai/relayer-sdk-js/0.1.0-9/relayer-sdk-js.umd.cjs" type="text/javascript"></script>
+    <script>
+      // Debug what's actually loaded
+      console.log(
+        "Available globals after CDN load:",
+        Object.keys(window).filter((k) => k.includes("SDK") || k.includes("Relayer") || k.includes("Zama")),
+      );
+      console.log("RelayerSDK:", window.RelayerSDK);
+      console.log("ZamaSDK:", window.ZamaSDK);
+
+      // Try different possible global names
+      window.ZamaSDK = window.RelayerSDK || window.ZamaRelayerSDK || window.ZAMA_SDK;
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

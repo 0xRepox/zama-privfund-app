@@ -1,17 +1,27 @@
-import { DeployFunction } from "hardhat-deploy/types";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
+import "dotenv/config";
 
-const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployer } = await hre.getNamedAccounts();
-  const { deploy } = hre.deployments;
-
-  const deployedFHECounter = await deploy("FHECounter", {
-    from: deployer,
-    log: true,
-  });
-
-  console.log(`FHECounter contract: `, deployedFHECounter.address);
+const config: HardhatUserConfig = {
+  solidity: {
+    version: "0.8.24",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
+  networks: {
+    sepolia: {
+      url: process.env.SEPOLIA_RPC_URL || "",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 11155111,
+    },
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
+  },
 };
-export default func;
-func.id = "deploy_fheCounter"; // id required to prevent reexecution
-func.tags = ["FHECounter"];
+
+export default config;
