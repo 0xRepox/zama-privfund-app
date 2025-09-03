@@ -1,6 +1,8 @@
-# 🔐 Private Crowdfund
+# 🔐 PrivFund
 
-A privacy-preserving crowdfunding platform powered by **Zama's Fully Homomorphic Encryption (FHE)** technology. This application demonstrates real-world FHE implementation where contribution amounts are encrypted client-side and computed on-chain without revealing individual donor amounts.
+A privacy-preserving crowdfunding platform powered by **Zama's Fully Homomorphic Encryption (FHE)** technology. This
+application demonstrates real-world FHE implementation where contribution amounts are encrypted client-side and computed
+on-chain without revealing individual donor amounts.
 
 ## 🌟 Key Features
 
@@ -14,16 +16,19 @@ A privacy-preserving crowdfunding platform powered by **Zama's Fully Homomorphic
 ## 🛡️ Privacy Model
 
 ### What's Private
+
 - **Individual contribution amounts** - Encrypted and only visible to the contributor
 - **Aggregate computations** - Totals computed homomorphically without revealing inputs
 - **Goal status** - Determined through encrypted comparison operations
 
 ### What's Public
+
 - **Transaction existence** - USDC transfers are visible on-chain (blockchain requirement)
 - **Contributor count** - Number of unique contributors
 - **Campaign metadata** - Goals, deadlines, and campaign information
 
 ### Decryption Permissions
+
 - **Contributors**: Can decrypt their own contribution totals
 - **Oracle**: Can decrypt aggregate totals when authorized
 - **Contract Owner**: Administrative access to encrypted campaign data
@@ -51,6 +56,7 @@ Zama FHEVM
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+
 - MetaMask wallet
 - Sepolia testnet ETH
@@ -151,15 +157,15 @@ goalReached = FHE.ge(totalRaisedEnc, goalEnc);
 
 ```solidity
 contract PrivateCrowdfund {
-    // Encrypted state
-    euint64 private totalRaisedEnc;
-    ebool private lastGoalReachedCache;
-    mapping(address => euint64) private contributionAmounts;
-    
-    // Public functions with encrypted operations
-    function contributeUSDC(uint256 amount6, externalEuint64 encHandle, bytes calldata inputProof) external;
-    function checkGoalReached() external returns (ebool);
-    function getTotalRaised() external view returns (euint64);
+  // Encrypted state
+  euint64 private totalRaisedEnc;
+  ebool private lastGoalReachedCache;
+  mapping(address => euint64) private contributionAmounts;
+
+  // Public functions with encrypted operations
+  function contributeUSDC(uint256 amount6, externalEuint64 encHandle, bytes calldata inputProof) external;
+  function checkGoalReached() external returns (ebool);
+  function getTotalRaised() external view returns (euint64);
 }
 ```
 
@@ -180,18 +186,17 @@ contract PrivateCrowdfund {
 
 ## 🌐 Live Demo
 
-**Frontend**: [Deploy on Vercel/Netlify with your contract address]
-**Contract**: Deployed on Sepolia testnet
+**Frontend**: [Deploy on Vercel/Netlify with your contract address] **Contract**: Deployed on Sepolia testnet
 **Explorer**: View on [Sepolia Etherscan](https://sepolia.etherscan.io/)
 
 ## 🏆 Zama Challenge Objectives
 
 This project demonstrates:
 
-✅ **Real-world FHE Use Case**: Privacy-preserving crowdfunding addresses actual privacy concerns in fundraising
-✅ **Intuitive User Experience**: Complex FHE operations hidden behind familiar Web3 interface
-✅ **Financial Application Viability**: Handles real USDC transactions with encrypted computation
-✅ **Ecosystem Contribution**: Provides reusable patterns for FHE application development
+✅ **Real-world FHE Use Case**: Privacy-preserving crowdfunding addresses actual privacy concerns in fundraising ✅
+**Intuitive User Experience**: Complex FHE operations hidden behind familiar Web3 interface ✅ **Financial Application
+Viability**: Handles real USDC transactions with encrypted computation ✅ **Ecosystem Contribution**: Provides reusable
+patterns for FHE application development
 
 ## 📜 Contract Parameters
 
