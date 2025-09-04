@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { BrowserProvider, Contract, parseUnits } from "ethers";
 import ABI from "./abi/PrivateCrowdfund.json";
 import "./App.css";
 
-const CONTRACT_ADDR = import.meta.env.VITE_CROWDFUND_ADDRESS || "0x2EBBaaE3bA5e4536992DE94DFa0D76C020f25d63";
-const USDC_ADDRESS = import.meta.env.VITE_USDC_ADDRESS || "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238"; // Sepolia USDC
+const CONTRACT_ADDR = import.meta.env.VITE_CROWDFUND_ADDRESS;
+const USDC_ADDRESS = import.meta.env.VITE_USDC_ADDRESS;
 
 const SEPOLIA_ID = 11155111;
 
@@ -487,6 +487,24 @@ export default function App() {
 
       <div className={`status ${status.includes("✅") ? "success" : status.includes("⚠") ? "error" : ""}`}>
         {status}
+      </div>
+      <div
+        className="footer"
+        style={{
+          marginTop: "32px",
+          textAlign: "center",
+          fontSize: "12px",
+          color: "#6b7280",
+        }}
+      >
+        developed by{" "}
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+          {/* Discord icon SVG */}
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.317 4.369A19.91 19.91 0 0 0 16.885 3c-.197.352-.42.83-.576 1.203a18.27 18.27 0 0 0-4.617 0A12.3 12.3 0 0 0 11.116 3c-1.18.213-2.32.574-3.432 1.062C3.674 9.105 2.956 14.65 3.278 20.11a19.956 19.956 0 0 0 5.927 1.897c.48-.647.907-1.333 1.276-2.057-.699-.262-1.363-.594-1.986-.98.166-.123.329-.25.486-.38 3.816 1.8 7.949 1.8 11.72 0 .158.13.32.257.486.38-.623.386-1.287.718-1.986.98.369.724.796 1.41 1.276 2.057a19.957 19.957 0 0 0 5.927-1.897c.406-6.689-.674-12.165-5.071-15.741ZM9.5 15.5c-.895 0-1.625-.863-1.625-1.922 0-1.058.72-1.922 1.625-1.922s1.625.864 1.625 1.922c0 1.059-.72 1.922-1.625 1.922Zm5 0c-.895 0-1.625-.863-1.625-1.922 0-1.058.72-1.922 1.625-1.922s1.625.864 1.625 1.922c0 1.059-.72 1.922-1.625 1.922Z" />
+          </svg>
+          @Klints_
+        </span>
       </div>
     </div>
   );
