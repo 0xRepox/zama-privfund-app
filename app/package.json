@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+       "lint": "eslint ."
+  }
   "dependencies": {
     "@fhevm/sdk": "^0.7.0-20",
     "@zama-fhe/relayer-sdk": "^0.1.1",
