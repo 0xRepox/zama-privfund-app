@@ -49,7 +49,7 @@ const config: HardhatUserConfig = {
       url: "http://localhost:8545",
     },
     sepolia: {
-      accounts: [vars.get("PRIVATE_KEY")], // Change this line
+      accounts: [vars.get("PRIVATE_KEY")],
       chainId: 11155111,
       url: `https://sepolia.infura.io/v3/${INFURA_API_KEY}`,
     },
