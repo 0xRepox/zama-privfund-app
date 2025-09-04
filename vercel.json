@@ -1,7 +1,5 @@
 {
-  "rootDirectory": "app",
-  "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "routes": [{ "src": "/(.*)", "dest": "/index.html" }]
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD"
 }
