@@ -188,9 +188,14 @@
         }
       ],
       "name": "contributeUSDC",
-      "outputs": [],
+      "type": "function",
       "stateMutability": "nonpayable",
-      "type": "function"
+      "inputs": [
+        { "internalType": "uint256", "name": "amount6", "type": "uint256" },
+        { "internalType": "externalEuint64", "name": "encHandle", "type": "bytes32" },
+        { "internalType": "bytes", "name": "inputProof", "type": "bytes" }
+      ],
+      "outputs": []
     },
     {
       "inputs": [],

@@ -52,12 +52,10 @@ export default function App() {
   const [amount, setAmount] = useState("");
   const [goalReached, setGoalReached] = useState(false);
   const [userContributions, setUserContributions] = useState(0);
-  const [hasContributed, setHasContributed] = useState(false);
 
   const [status, setStatus] = useState("Ready to connect");
   const [pending, setPending] = useState(false);
   const [connected, setConnected] = useState(false);
-  const [checkingAllowance, setCheckingAllowance] = useState(false);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -118,8 +116,7 @@ export default function App() {
       setProvider(prov);
 
       const signer = await prov.getSigner();
-      const signerAddress = await signer.getAddress();
-      setSignerAddr(signerAddress);
+      setSignerAddr(await signer.getAddress());
 
       // Relayer
       let rel: any = null;
@@ -151,27 +148,6 @@ export default function App() {
 
       // test read
       await c.fundingGoal();
-
-      // Check if user has already contributed
-      try {
-        const contributed = await c.hasContributed(signerAddress);
-        setHasContributed(contributed);
-
-        // If user has contributed, try to get their total
-        if (contributed && rel) {
-          try {
-            const handle = await c.getContributionAmount(signerAddress);
-            const out = await rel.decrypt([handle as string]);
-            const v = out[handle as string];
-            const microUsdc = typeof v === "bigint" ? Number(v) : Number(v || 0);
-            setUserContributions(microUsdc / 1000000);
-          } catch (decryptErr) {
-            console.log("Could not decrypt user contribution (normal if permissions not set)");
-          }
-        }
-      } catch (err) {
-        console.log("Could not check contribution status");
-      }
 
       setContract(c);
       setUsdcContract(usdcC);
@@ -228,14 +204,6 @@ export default function App() {
       const count: bigint = await _c.contributorCount();
       setDonors(Number(count));
     } catch {}
-
-    // Check if user has contributed (refresh this status)
-    if (signerAddr && _c) {
-      try {
-        const contributed = await _c.hasContributed(signerAddr);
-        setHasContributed(contributed);
-      } catch {}
-    }
   }
 
   async function contribute() {
@@ -307,57 +275,16 @@ export default function App() {
         return;
       }
 
-      // Enhanced allowance checking with proper wait
       setStatus("Checking USDC allowance...");
-      setCheckingAllowance(true);
-
-      let currentAllowance = await usdcContract.allowance(signerAddress, toAddr);
-      console.log("Current allowance:", currentAllowance.toString(), "Required:", amount6.toString());
-
+      const currentAllowance = await usdcContract.allowance(signerAddress, toAddr);
       if (currentAllowance < amount6) {
         setStatus("Approving USDC spend…");
-
-        // Set a high allowance to avoid repeated approvals
-        const approvalAmount = parseUnits("1000000", 6); // 1M USDC allowance
-        const approveTx = await usdcContract.approve(toAddr, approvalAmount);
+        const approveTx = await usdcContract.approve(toAddr, amount6);
         setStatus(`Approval pending: ${approveTx.hash.slice(0, 10)}…`);
-
-        // Wait for confirmation with proper block confirmations
-        const approveReceipt = await approveTx.wait(2); // Wait for 2 confirmations
-
-        if (approveReceipt.status === 0) {
-          throw new Error("Approval transaction failed");
-        }
-
-        setStatus("USDC approved ✅ Verifying...");
-
-        // Wait a bit for state to propagate
-        await new Promise((r) => setTimeout(r, 3000));
-
-        // Double-check the allowance was set
-        let retries = 5;
-        while (retries > 0) {
-          currentAllowance = await usdcContract.allowance(signerAddress, toAddr);
-          console.log(`Allowance check ${6 - retries}/5:`, currentAllowance.toString());
-
-          if (currentAllowance >= amount6) {
-            console.log("Allowance confirmed!");
-            break;
-          }
-
-          if (retries === 1) {
-            throw new Error("Allowance not set after approval. Please try again.");
-          }
-
-          await new Promise((r) => setTimeout(r, 2000));
-          retries--;
-        }
-
-        setStatus("USDC approval confirmed ✅");
-        await new Promise((r) => setTimeout(r, 1000));
+        await approveTx.wait();
+        setStatus("USDC approved ✅");
+        await new Promise((r) => setTimeout(r, 1200));
       }
-
-      setCheckingAllowance(false);
 
       // 3) Encrypt AFTER allowance is ready — bind to EXACT same address
       setStatus("Encrypting your contribution…");
@@ -395,24 +322,20 @@ export default function App() {
       });
 
       setStatus(`Transaction pending: ${tx.hash.slice(0, 10)}…`);
-      const receipt = await tx.wait(2); // Wait for 2 confirmations
+      const receipt = await tx.wait();
       if (receipt.status === 0) throw new Error("Transaction failed during execution");
 
-      // Update local state
       setUserContributions((prev) => prev + n);
-      setHasContributed(true);
       setStatus(`✅ Contribution of ${n} USDC successful! Tx: ${tx.hash.slice(0, 10)}…`);
       setAmount("");
-
-      // Refresh data after a short delay
-      setTimeout(() => refresh(), 2000);
+      await refresh();
     } catch (e: any) {
       const decoded = contract ? explainRevert(e, contract) : null;
       let msg = decoded || e?.reason || e?.error?.message || e?.shortMessage || e?.message || "Transaction failed";
       const lower = String(msg).toLowerCase();
       if (lower.includes("insufficient funds")) msg = "Insufficient ETH for gas fees";
       else if (lower.includes("user rejected")) msg = "Transaction cancelled by user";
-      else if (lower.includes("transferfrom")) msg = "USDC transfer failed – check allowance/balance";
+      else if (lower.includes("transferfrom")) msg = "USDC transfer failed — check allowance/balance";
       else if (lower.includes("expired")) msg = "Campaign has expired";
       else if (lower.includes("finalized")) msg = "Campaign already finalized";
       else if (lower.includes("bounds")) msg = "Contribution amount is outside allowed bounds";
@@ -420,7 +343,6 @@ export default function App() {
       console.error("Contribution error:", e);
     } finally {
       setPending(false);
-      setCheckingAllowance(false);
     }
   }
 
@@ -534,10 +456,8 @@ export default function App() {
       <div className="form">
         <h3>Make a Private Contribution</h3>
         <p style={{ fontSize: "14px", textAlign: "center", display: "block", color: "#6b7280", marginBottom: "16px" }}>
-          {hasContributed
-            ? "You've already contributed! You can contribute again to increase your total."
-            : "You can contribute multiple times. Each contribution is encrypted separately."}{" "}
-          Supports decimal amounts like 1.25 USDC.
+          You can contribute multiple times. Each contribution is encrypted separately. Supports decimal amounts like
+          1.25 USDC.
         </p>
         <div className="form-row">
           <input
@@ -552,14 +472,8 @@ export default function App() {
             autoComplete="off"
             style={{ pointerEvents: "auto", userSelect: "text", WebkitUserSelect: "text" }}
           />
-          <button className="contribute-btn" onClick={contribute} disabled={pending || checkingAllowance}>
-            {checkingAllowance
-              ? "⏳ Checking approval..."
-              : pending
-                ? "🔒 Processing..."
-                : hasContributed
-                  ? "Contribute Again"
-                  : "Contribute"}
+          <button className="contribute-btn" onClick={contribute} disabled={pending}>
+            {pending ? "🔒 Processing..." : "Contribute"}
           </button>
         </div>
         <div className="form-row">
