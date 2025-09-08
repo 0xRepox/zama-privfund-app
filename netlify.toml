@@ -2,7 +2,7 @@
 [build]
 base    = "app"          # your Vite app lives here
 command = "npm ci && npm run build"
-publish = "app/dist"     # Vite output
+publish = "dist"     # Vite output
 
 # Single-page app routing
 [[redirects]]
